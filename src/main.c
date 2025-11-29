@@ -368,17 +368,27 @@ int main(int argc, char *argv[]) {
         switch (choice) {
             case 1: {
                 char filename[256];
+                char filepath[512];
                 printf("Enter FASTA filename: ");
                 if (scanf("%s", filename) != 1) filename[0] = '\0';
                 getchar();
+                
+                // Try data/ directory first, then current directory
+                snprintf(filepath, sizeof(filepath), "data/%s", filename);
                 
                 if (sequence) {
                     free_dna_sequence(sequence);
                 }
                 
-                sequence = load_fasta_file(filename);
+                sequence = load_fasta_file(filepath);
+                if (!sequence) {
+                    // Try without data/ prefix
+                    sequence = load_fasta_file(filename);
+                }
+                
                 if (!sequence) {
                     printf("Failed to load sequence!\n");
+                    printf("Tip: File should be in 'data/' folder or current directory\n");
                 }
                 break;
             }

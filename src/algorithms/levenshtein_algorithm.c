@@ -79,17 +79,27 @@ ApproximateMatchResult levenshtein_search(const char *text, const char *pattern,
     result.memory_used = capacity * sizeof(ApproximateMatch);
     int count = 0;
     
-    // Sliding window approach
-    int window_size = m + max_distance * 2;
-    
-    for (int i = 0; i <= n - m + max_distance && i < n; i++) {
-        int end = i + window_size;
-        if (end > n) end = n;
+    // For each position in text, check substrings of varying lengths
+    // Length can vary from (m - max_distance) to (m + max_distance)
+    // to account for insertions and deletions
+    for (int i = 0; i < n; i++) {
+        // Try different substring lengths around the pattern length
+        int min_len = m - max_distance;
+        if (min_len < 1) min_len = 1;
+        int max_len = m + max_distance;
+        if (i + max_len > n) max_len = n - i;
         
-        int substring_len = end - i;
-        int distance = levenshtein_distance(pattern, m, text + i, substring_len);
+        int best_distance = max_distance + 1;
         
-        if (distance <= max_distance) {
+        for (int len = min_len; len <= max_len && i + len <= n; len++) {
+            int distance = levenshtein_distance(pattern, m, text + i, len);
+            
+            if (distance < best_distance) {
+                best_distance = distance;
+            }
+        }
+        
+        if (best_distance <= max_distance) {
             if (count >= capacity) {
                 capacity *= 2;
                 ApproximateMatch *temp = (ApproximateMatch *)realloc(matches, 
@@ -103,7 +113,7 @@ ApproximateMatchResult levenshtein_search(const char *text, const char *pattern,
                 result.memory_used += capacity * sizeof(ApproximateMatch) / 2;
             }
             matches[count].position = i;
-            matches[count].distance = distance;
+            matches[count].distance = best_distance;
             count++;
         }
     }
