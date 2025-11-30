@@ -6,6 +6,22 @@
 
 #include "pattern_matching.h"
 
+/* File-scoped helpers for suffix-array comparator */
+static const char *sa_text_for_cmp = NULL;
+static int sa_cmp(const void *a, const void *b) {
+    int ia = *(const int *)a;
+    int ib = *(const int *)b;
+    return strcmp(sa_text_for_cmp + ia, sa_text_for_cmp + ib);
+}
+
+static int int_cmp(const void *a, const void *b) {
+    int ia = *(const int *)a;
+    int ib = *(const int *)b;
+    if (ia < ib) return -1;
+    if (ia > ib) return 1;
+    return 0;
+}
+
 /*
  * Replace the previous partial suffix-tree implementation with a simpler
  * suffix-array-based exact search. The public API (create_suffix_tree,
@@ -37,16 +53,9 @@ SuffixTree* create_suffix_tree(const char *text) {
 
     for (int i = 0; i < n; i++) sa[i] = i;
 
-    /* comparator closure using static pointer (simple and fine here) */
-    static const char *gtext = NULL;
-    gtext = copied;
-
-    int cmp(const void *x, const void *y) {
-        int ix = *(const int *)x;
-        int iy = *(const int *)y;
-        return strcmp(gtext + ix, gtext + iy);
-    }
-    qsort(sa, n, sizeof(int), cmp);
+    /* comparator uses a file-scoped pointer to the copied text */
+    sa_text_for_cmp = copied;
+    qsort(sa, n, sizeof(int), sa_cmp);
 
     /* store copied text and suffix array pointer in wrapper fields */
     wrapper->text = copied;
@@ -109,6 +118,9 @@ MatchResult suffix_tree_search(SuffixTree *tree, const char *pattern) {
             matches[count++] = sa[i];
         } else break;
     }
+
+    /* sort match positions ascending for predictable output */
+    if (count > 1) qsort(matches, count, sizeof(int), int_cmp);
 
     clock_t end = clock();
     result.positions = matches;

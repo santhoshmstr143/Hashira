@@ -59,52 +59,46 @@ static void add_pattern(ACTrie *trie, const char *pattern, int pattern_id) {
 }
 
 static void build_failure_links(ACTrie *trie) {
-    // BFS queue implementation using array
-    ACNode **queue = (ACNode **)malloc(10000 * sizeof(ACNode *));
-    int front = 0, rear = 0;
-    
+    // BFS queue implemented with a dynamically resizing array to avoid fixed-size overflow
+    size_t qcap = 1024;
+    ACNode **queue = (ACNode **)malloc(qcap * sizeof(ACNode *));
+    size_t front = 0, rear = 0;
+
     // Initialize root's children
     for (int i = 0; i < ALPHABET_SIZE; i++) {
         if (trie->root->children[i]) {
             trie->root->children[i]->failure = trie->root;
+            if (rear >= qcap) {
+                qcap *= 2;
+                ACNode **tmp = (ACNode **)realloc(queue, qcap * sizeof(ACNode *));
+                if (tmp) queue = tmp;
+            }
             queue[rear++] = trie->root->children[i];
         }
     }
-    
+
     // Build failure links using BFS
     while (front < rear) {
         ACNode *current = queue[front++];
-        
+
         for (int i = 0; i < ALPHABET_SIZE; i++) {
             if (current->children[i]) {
                 ACNode *child = current->children[i];
+                if (rear >= qcap) {
+                    qcap *= 2;
+                    ACNode **tmp = (ACNode **)realloc(queue, qcap * sizeof(ACNode *));
+                    if (tmp) queue = tmp;
+                }
                 queue[rear++] = child;
-                
+
                 ACNode *failure = current->failure;
                 while (failure && !failure->children[i]) {
                     failure = failure->failure;
                 }
-                
+
                 child->failure = failure ? failure->children[i] : trie->root;
                 
-                // Merge outputs
-                // Note: We don't need to merge outputs here if we traverse failure links during search
-                // But merging is an optimization to avoid traversing failure links for every character
-                // However, the previous implementation had bugs with merging.
-                // Let's stick to traversing failure links during search for correctness (as implemented in the search function now)
-                // Or we can keep merging but ensure it's correct.
-                // The search function I just updated traverses failure links to find ALL matches (including suffixes).
-                // So we don't strictly need to merge outputs into the child node if we traverse up.
-                // But if we want O(1) output reporting per node, we should merge.
-                // Given the complexity, traversing up failure links in search is safer for correctness.
-                // So I will remove the merging logic here to avoid duplication if I traverse up in search.
-                // Wait, if I traverse up in search, I will find matches from failure nodes.
-                // If I ALSO merge outputs here, I might report duplicates?
-                // No, the search function traverses `temp = temp->failure`.
-                // If `child->output` already contains `failure->output`, then `temp->output` will contain it.
-                // And `temp->failure->output` will also contain it.
-                // So we would report duplicates.
-                // So I should REMOVE the output merging here if I am traversing failure links in search.
+                // Do not merge outputs here; search will traverse failure links to report suffix matches.
             }
         }
     }
@@ -161,14 +155,13 @@ MultiPatternResult aho_corasick_search(const char *text, const char **patterns, 
             current = trie.root;
         }
         
-        // Check for matches
-        ACNode *temp = current;
-        while (temp != trie.root) {
+        // Check for matches (including matches stored at root, e.g., empty patterns)
+        for (ACNode *temp = current; temp != NULL; temp = temp->failure) {
             if (temp->output) {
                 for (int j = 0; j < temp->output_count; j++) {
                     int pattern_id = temp->output[j];
                     int pattern_len = strlen(patterns[pattern_id]);
-                    
+
                     if (count >= capacity) {
                         capacity *= 2;
                         PatternMatch *new_matches = (PatternMatch *)realloc(result.matches, 
@@ -177,14 +170,14 @@ MultiPatternResult aho_corasick_search(const char *text, const char **patterns, 
                             result.matches = new_matches;
                         }
                     }
-                    
+
                     result.matches[count].position = i - pattern_len + 1;
                     result.matches[count].pattern_id = pattern_id;
                     result.matches[count].pattern_length = pattern_len;
                     count++;
                 }
             }
-            temp = temp->failure;
+            if (temp == trie.root) break; // root->failure is NULL; break for clarity
         }
     }
     
