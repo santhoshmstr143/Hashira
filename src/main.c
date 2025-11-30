@@ -170,10 +170,15 @@ void compare_all_algorithms(const char *text, const char *pattern) {
     free_suffix_tree(tree);
     
     // Shift-Or
+    MatchResult so_result;
+    so_result.count = 0;
+    so_result.time_taken = 0;
+    so_result.memory_used = 0;
+    so_result.positions = NULL;
+    
     if (strlen(pattern) <= 64) {
-        MatchResult so_result = shift_or_search(text, pattern);
+        so_result = shift_or_search(text, pattern);
         print_match_result("Shift-Or Algorithm", &so_result);
-        free_match_result(&so_result);
     } else {
         printf("\n⚠️  Shift-Or: Pattern too long (max 64 characters)\n");
     }
@@ -186,10 +191,6 @@ void compare_all_algorithms(const char *text, const char *pattern) {
     MatchResult z_result = z_algorithm_search(text, pattern);
     print_match_result("Z-Algorithm", &z_result);
     
-    // Python Regex
-    MatchResult regex_result = regex_search(text, pattern);
-    print_match_result("C Regex (POSIX)", &regex_result);
-    
     // Verify correctness
     printf("\n┌──────────────────────────────────┐\n");
     printf("│  ✅ Correctness Verification  │\n");
@@ -199,7 +200,8 @@ void compare_all_algorithms(const char *text, const char *pattern) {
     
     int all_match = (kmp_result.count == bm_result.count && 
                      bm_result.count == st_result.count &&
-                     st_result.count == rk_result.count &&
+                     st_result.count == so_result.count &&
+                     so_result.count == rk_result.count &&
                      rk_result.count == z_result.count);
     printf("  All algorithms agree: %s\n", all_match ? "✅ YES" : "⚠️  NO");
     
@@ -215,12 +217,12 @@ void compare_all_algorithms(const char *text, const char *pattern) {
            bm_result.time_taken, bm_result.memory_used);
     printf("  %-20s | %10d | %15.3f | %15zu\n", "Suffix Tree", st_result.count,
            st_result.time_taken, st_result.memory_used);
+    printf("  %-20s | %10d | %15.3f | %15zu\n", "Shift-Or", so_result.count,
+           so_result.time_taken, so_result.memory_used);
     printf("  %-20s | %10d | %15.3f | %15zu\n", "Rabin-Karp", rk_result.count,
            rk_result.time_taken, rk_result.memory_used);
     printf("  %-20s | %10d | %15.3f | %15zu\n", "Z-Algorithm", z_result.count,
            z_result.time_taken, z_result.memory_used);
-    printf("  %-20s | %10d | %15.3f | %15s\n", "C Regex", regex_result.count,
-           regex_result.time_taken, "N/A");
     
     // Find fastest
     double min_time = kmp_result.time_taken;
@@ -234,6 +236,10 @@ void compare_all_algorithms(const char *text, const char *pattern) {
         min_time = st_result.time_taken;
         fastest = "Suffix Tree";
     }
+    if (so_result.time_taken < min_time && strlen(pattern) <= 64) {
+        min_time = so_result.time_taken;
+        fastest = "Shift-Or";
+    }
     if (rk_result.time_taken < min_time) {
         min_time = rk_result.time_taken;
         fastest = "Rabin-Karp";
@@ -242,10 +248,6 @@ void compare_all_algorithms(const char *text, const char *pattern) {
         min_time = z_result.time_taken;
         fastest = "Z-Algorithm";
     }
-    if (regex_result.time_taken < min_time) {
-        min_time = regex_result.time_taken;
-        fastest = "C Regex";
-    }
     
     printf("\n  🏆 Fastest algorithm: %s (%.3f ms)\n", fastest, min_time);
     
@@ -253,9 +255,9 @@ void compare_all_algorithms(const char *text, const char *pattern) {
     free_match_result(&kmp_result);
     free_match_result(&bm_result);
     free_match_result(&st_result);
+    free_match_result(&so_result);
     free_match_result(&rk_result);
     free_match_result(&z_result);
-    free_match_result(&regex_result);
 }
 
 void run_comprehensive_tests() {
