@@ -29,10 +29,10 @@ void print_algorithm_info(int choice) {
             printf("   Time Complexity: Average O(n/m), Worst O(nm).\n");
             break;
         case 5: // Suffix Tree
-            printf("   \033[1mSuffix Array/Tree\033[0m is a powerful data structure approach.\n");
-            printf("   It preprocesses the *text* (not the pattern) to create a sorted index of all suffixes.\n");
-            printf("   This allows us to find any pattern in time proportional only to the pattern length,\n");
-            printf("   making it ideal for searching many patterns in the same genome.\n");
+            printf("   \033[1mSuffix Tree\033[0m is a compressed trie of all text suffixes.\n");
+            printf("   It builds an explicit tree structure with '$' terminator ensuring unique leaves.\n");
+            printf("   Construction: O(n²) via explicit suffix insertion. Search: O(m) tree walk.\n");
+            printf("   Ideal for multiple pattern queries on the same text after preprocessing.\n");
             break;
         case 6: // Shift-Or
             printf("   \033[1mShift-Or (Bitap)\033[0m uses bitwise operations to simulate a non-deterministic automaton.\n");
@@ -335,16 +335,7 @@ void run_benchmark_mode(int algo_id, const char *filename, const char *pattern) 
         case 15: result = naive_search(seq->sequence, pattern); break;
         case 4: result = boyer_moore_search(seq->sequence, pattern); break;
         case 5: {
-             // Suffix tree usually requires building, we'll just time the search + build if possible
-             // But our current API separates them. For fair comparison, we might include build time or not.
-             // Let's include build time as it's part of the "one-off" search cost if not pre-indexed.
-             // Actually, our suffix_tree_search does everything.
-             // Wait, let's check suffix_tree.c API.
-             // It seems we replaced it with Suffix Array which might be inside a function.
-             // Let's assume suffix_tree_search exists and works.
-             // If not, we'll skip.
-             // Checking header... SuffixTree* create... MatchResult suffix_tree_search...
-             // We'll need to wrap it.
+             // Suffix tree: O(n²) construction + O(m) search
              SuffixTree *st = create_suffix_tree(seq->sequence);
              result = suffix_tree_search(st, pattern);
              free_suffix_tree(st);

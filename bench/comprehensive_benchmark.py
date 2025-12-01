@@ -25,7 +25,7 @@ ALGORITHMS = {
     15: {"name": "Naive", "complexity": "O(nm)", "color": "#FF6B6B"},
     3: {"name": "KMP", "complexity": "O(n+m)", "color": "#4ECDC4"},
     4: {"name": "Boyer-Moore", "complexity": "O(n/m)", "color": "#45B7D1"},
-    5: {"name": "Suffix Array", "complexity": "O(m log n)", "color": "#96CEB4"},
+    5: {"name": "Suffix Tree", "complexity": "O(n² + m)", "color": "#96CEB4"},
     6: {"name": "Shift-Or", "complexity": "O(n)", "color": "#FFEAA7"},
     11: {"name": "Rabin-Karp", "complexity": "O(n+m)", "color": "#DFE6E9"},
     12: {"name": "Z-Algorithm", "complexity": "O(n+m)", "color": "#A29BFE"}
@@ -152,7 +152,7 @@ def benchmark_memory_usage():
     memory_usage[15] = {"name": "Naive", "memory": 0}  # O(1)
     memory_usage[3] = {"name": "KMP", "memory": pattern_len * 4}  # O(m) for LPS array
     memory_usage[4] = {"name": "Boyer-Moore", "memory": (pattern_len + 256) * 4}  # O(m + σ)
-    memory_usage[5] = {"name": "Suffix Array", "memory": text_size * 4}  # O(n)
+    memory_usage[5] = {"name": "Suffix Tree", "memory": text_size * text_size}  # O(n²)
     memory_usage[6] = {"name": "Shift-Or", "memory": 256 * 8}  # O(σ) for bitmasks
     memory_usage[11] = {"name": "Rabin-Karp", "memory": 0}  # O(1)
     memory_usage[12] = {"name": "Z-Algorithm", "memory": (text_size + pattern_len) * 4}  # O(n+m)

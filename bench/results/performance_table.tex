@@ -7,19 +7,19 @@
 \hline
 \textbf{Algorithm} & \textbf{Time (ms)} & \textbf{Memory (KB)} & \textbf{Complexity} & \textbf{Speedup} \\
 \hline
-KMP & 0.872 & 0.0 & O(n+m) & 0.78x \\
+KMP & 0.977 & 0.0 & O(n+m) & 0.90x \\
 \hline
-Boyer-Moore & 0.492 & 1.0 & O(n/m) & 1.39x \\
+Boyer-Moore & 0.483 & 1.0 & O(n/m) & 1.83x \\
 \hline
-Suffix Array & 0.004 & 3906.2 & O(m log n) & 170.50x \\
+Suffix Tree & 0.023 & 976562500.0 & O(n² + m) & 38.43x \\
 \hline
-Shift-Or & 0.130 & 2.0 & O(n) & 5.25x \\
+Shift-Or & 0.130 & 2.0 & O(n) & 6.80x \\
 \hline
-Rabin-Karp & 3.028 & ~0 & O(n+m) & 0.23x \\
+Rabin-Karp & 3.053 & ~0 & O(n+m) & 0.29x \\
 \hline
-Z-Algorithm & 1.285 & 3906.3 & O(n+m) & 0.53x \\
+Z-Algorithm & 1.257 & 3906.3 & O(n+m) & 0.70x \\
 \hline
-Naive & 0.682 & ~0 & O(nm) & 1.00x \\
+Naive & 0.884 & ~0 & O(nm) & 1.00x \\
 \hline
 \end{tabular}
 \end{table}

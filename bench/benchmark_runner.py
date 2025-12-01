@@ -5,19 +5,22 @@ import time
 import matplotlib.pyplot as plt
 import sys
 
+# Paths relative to project root
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # Configuration
 SIZES = [10000, 50000, 100000, 500000, 1000000]
 ALGORITHMS = {
     3: "KMP",
     4: "Boyer-Moore",
-    5: "Suffix Array",
+    5: "Suffix Tree",
     6: "Shift-Or",
     11: "Rabin-Karp",
     12: "Z-Algorithm"
 }
 PATTERN_LEN = 10
-EXECUTABLE = "./bin/dna_pattern_matching"
-TEMP_DIR = "bench_temp"
+EXECUTABLE = os.path.join(PROJECT_ROOT, "bin/dna_pattern_matching")
+TEMP_DIR = os.path.join(PROJECT_ROOT, "bench_temp")
 
 def generate_dna(length):
     return "".join(random.choice("ACGT") for _ in range(length))
@@ -28,7 +31,7 @@ def run_benchmark():
 
     # Compile first
     print("Compiling...")
-    subprocess.run(["make"], check=True)
+    subprocess.run(["make"], cwd=PROJECT_ROOT, check=True)
 
     results = {name: [] for name in ALGORITHMS.values()}
     
@@ -79,8 +82,10 @@ def run_benchmark():
     plt.title("Exact Pattern Matching Performance Comparison")
     plt.legend()
     plt.grid(True)
-    plt.savefig("bench/benchmark_results.png")
-    print("\nBenchmark complete. Graph saved to bench/benchmark_results.png")
+    
+    output_file = os.path.join(PROJECT_ROOT, "bench/benchmark_results.png")
+    plt.savefig(output_file)
+    print(f"\nBenchmark complete. Graph saved to {output_file}")
 
     # Clean up
     for f in os.listdir(TEMP_DIR):

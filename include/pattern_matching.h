@@ -46,35 +46,13 @@ void compute_good_suffix(const char *pattern, int m, int *good_suffix);
 MatchResult boyer_moore_search(const char *text, const char *pattern);
 
 // Suffix Tree Algorithm
-typedef struct SuffixTreeNode {
-    struct SuffixTreeNode **children;
-    int start;
-    int *end;
-    int suffix_index;
-    struct SuffixTreeNode *suffix_link;
-} SuffixTreeNode;
+typedef struct SuffixTreeNode SuffixTreeNode;
 
 typedef struct {
     char *text;
     SuffixTreeNode *root;
-    SuffixTreeNode *active_node;
-    int active_edge;
-    int active_length;
-    int remaining;
-    int leaf_end;
     int size;
 } SuffixTree;
-
-/* For simplified suffix-array based search we store a suffix array here.
- * The existing API used by main.c expects create_suffix_tree/suffix_tree_search
- * to exist; to keep that stable we implement a suffix-array based backend
- * but keep the SuffixTree typedef name so the rest of the code compiles.
- */
-typedef struct {
-    char *text;
-    int size;
-    int *suffix_array; /* array of starting indices of sorted suffixes */
-} SuffixArrayWrapper;
 
 SuffixTree* create_suffix_tree(const char *text);
 MatchResult suffix_tree_search(SuffixTree *tree, const char *pattern);
