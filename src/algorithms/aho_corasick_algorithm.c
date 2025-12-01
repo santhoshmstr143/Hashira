@@ -106,6 +106,19 @@ static void build_failure_links(ACTrie *trie) {
     free(queue);
 }
 
+static void free_ac_node(ACNode *node) {
+    if (!node) return;
+    for (int i = 0; i < ALPHABET_SIZE; i++) {
+        if (node->children[i]) {
+            free_ac_node(node->children[i]);
+        }
+    }
+    if (node->output) {
+        free(node->output);
+    }
+    free(node);
+}
+
 MultiPatternResult aho_corasick_search(const char *text, const char **patterns, int pattern_count) {
     MultiPatternResult result;
     result.matches = NULL;
@@ -186,6 +199,9 @@ MultiPatternResult aho_corasick_search(const char *text, const char **patterns, 
     result.match_count = count;
     result.time_taken = ((double)(end - start)) / CLOCKS_PER_SEC * 1000.0;
     result.memory_used = capacity * sizeof(PatternMatch);
+    
+    // Cleanup Trie to prevent memory leaks
+    free_ac_node(trie.root);
     
     return result;
 }

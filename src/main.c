@@ -372,7 +372,7 @@ int main(int argc, char *argv[]) {
                 char filename[256];
                 char filepath[512];
                 printf("Enter FASTA filename: ");
-                if (scanf("%s", filename) != 1) filename[0] = '\0';
+                if (scanf("%255s", filename) != 1) filename[0] = '\0';
                 getchar();
                 
                 // Try data/ directory first, then current directory
@@ -423,7 +423,7 @@ int main(int argc, char *argv[]) {
                 
                 print_algorithm_info(3);
                 printf("Enter pattern to search: ");
-                if (scanf("%s", pattern) != 1) pattern[0] = '\0';
+                if (scanf("%255s", pattern) != 1) pattern[0] = '\0';
                 getchar();
                 
                 MatchResult result = kmp_search(sequence->sequence, pattern);
@@ -448,7 +448,7 @@ int main(int argc, char *argv[]) {
                 
                 print_algorithm_info(4);
                 printf("Enter pattern to search: ");
-                if (scanf("%s", pattern) != 1) pattern[0] = '\0';
+                if (scanf("%255s", pattern) != 1) pattern[0] = '\0';
                 getchar();
                 
                 MatchResult result = boyer_moore_search(sequence->sequence, pattern);
@@ -466,7 +466,7 @@ int main(int argc, char *argv[]) {
                 
                 print_algorithm_info(5);
                 printf("Enter pattern to search: ");
-                if (scanf("%s", pattern) != 1) pattern[0] = '\0';
+                if (scanf("%255s", pattern) != 1) pattern[0] = '\0';
                 getchar();
                 
                 printf("Building Suffix Tree (this may take a moment)...\n");
@@ -493,7 +493,7 @@ int main(int argc, char *argv[]) {
                 
                 print_algorithm_info(6);
                 printf("Enter pattern to search (max 64 chars): ");
-                if (scanf("%s", pattern) != 1) pattern[0] = '\0';
+                if (scanf("%255s", pattern) != 1) pattern[0] = '\0';
                 getchar();
                 
                 MatchResult result = shift_or_search(sequence->sequence, pattern);
@@ -511,7 +511,7 @@ int main(int argc, char *argv[]) {
                 
                 print_algorithm_info(7);
                 printf("Enter pattern to search: ");
-                if (scanf("%s", pattern) != 1) pattern[0] = '\0';
+                if (scanf("%255s", pattern) != 1) pattern[0] = '\0';
                 getchar();
                 
                 int max_dist;
@@ -534,7 +534,7 @@ int main(int argc, char *argv[]) {
                 
                 print_algorithm_info(14);
                 printf("Enter pattern to search (max 63 chars): ");
-                if (scanf("%s", pattern) != 1) pattern[0] = '\0';
+                if (scanf("%255s", pattern) != 1) pattern[0] = '\0';
                 getchar();
                 
                 int max_dist;
@@ -556,7 +556,7 @@ int main(int argc, char *argv[]) {
                 }
                 
                 printf("Enter pattern to search: ");
-                if (scanf("%s", pattern) != 1) pattern[0] = '\0';
+                if (scanf("%255s", pattern) != 1) pattern[0] = '\0';
                 getchar();
                 
                 compare_all_algorithms(sequence->sequence, pattern);
@@ -570,7 +570,7 @@ int main(int argc, char *argv[]) {
                 }
 
                 printf("Enter pattern to search: ");
-                if (scanf("%s", pattern) != 1) pattern[0] = '\0';
+                if (scanf("%255s", pattern) != 1) pattern[0] = '\0';
                 getchar();
 
                 printf("\n=== Benchmark: KMP vs Python regex ===\n");
@@ -637,7 +637,7 @@ int main(int argc, char *argv[]) {
                 
                 print_algorithm_info(11);
                 printf("Enter pattern to search: ");
-                if (scanf("%s", pattern) != 1) pattern[0] = '\0';
+                if (scanf("%255s", pattern) != 1) pattern[0] = '\0';
                 getchar();
                 
                 MatchResult result = rabin_karp_search(sequence->sequence, pattern);
@@ -655,7 +655,7 @@ int main(int argc, char *argv[]) {
                 
                 print_algorithm_info(12);
                 printf("Enter pattern to search: ");
-                if (scanf("%s", pattern) != 1) pattern[0] = '\0';
+                if (scanf("%255s", pattern) != 1) pattern[0] = '\0';
                 getchar();
                 
                 MatchResult result = z_algorithm_search(sequence->sequence, pattern);
@@ -687,7 +687,7 @@ int main(int argc, char *argv[]) {
                 for (int i = 0; i < num_patterns; i++) {
                     patterns[i] = (char *)malloc(256 * sizeof(char));
                     printf("Enter pattern %d: ", i + 1);
-                    if (scanf("%s", patterns[i]) != 1) patterns[i][0] = '\0';
+                    if (scanf("%255s", patterns[i]) != 1) patterns[i][0] = '\0';
                     getchar();
                 }
                 
