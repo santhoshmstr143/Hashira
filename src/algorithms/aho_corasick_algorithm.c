@@ -78,6 +78,8 @@ static void build_failure_links(ACTrie *trie) {
     }
 
     // Build failure links using BFS
+    // Failure link points to the longest proper suffix of the current string 
+    // that is also a prefix of some pattern in the trie.
     while (front < rear) {
         ACNode *current = queue[front++];
 
@@ -92,13 +94,15 @@ static void build_failure_links(ACTrie *trie) {
                 queue[rear++] = child;
 
                 ACNode *failure = current->failure;
+                // Traverse failure links until a node with transition 'i' is found
                 while (failure && !failure->children[i]) {
                     failure = failure->failure;
                 }
 
                 child->failure = failure ? failure->children[i] : trie->root;
                 
-                // Do not merge outputs here; search will traverse failure links to report suffix matches.
+                // Output links are not explicitly merged here; 
+                // instead, we traverse the failure chain during search to collect all matches.
             }
         }
     }
@@ -157,7 +161,8 @@ MultiPatternResult aho_corasick_search(const char *text, const char **patterns, 
     for (int i = 0; i < text_len; i++) {
         unsigned char c = (unsigned char)text[i];
         
-        // Follow failure links if needed
+        // Follow failure links if current char doesn't match
+        // This simulates the transition in the Aho-Corasick automaton
         while (current != trie.root && !current->children[c]) {
             current = current->failure;
         }
@@ -168,7 +173,8 @@ MultiPatternResult aho_corasick_search(const char *text, const char **patterns, 
             current = trie.root;
         }
         
-        // Check for matches (including matches stored at root, e.g., empty patterns)
+        // Traverse failure chain to find all patterns ending at this position
+        // This handles cases where one pattern is a suffix of another (e.g., "he" inside "she")
         for (ACNode *temp = current; temp != NULL; temp = temp->failure) {
             if (temp->output) {
                 for (int j = 0; j < temp->output_count; j++) {
@@ -190,7 +196,7 @@ MultiPatternResult aho_corasick_search(const char *text, const char **patterns, 
                     count++;
                 }
             }
-            if (temp == trie.root) break; // root->failure is NULL; break for clarity
+            if (temp == trie.root) break; // Stop at root to avoid infinite loops if root failure is set incorrectly
         }
     }
     

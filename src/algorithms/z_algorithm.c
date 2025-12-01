@@ -13,8 +13,12 @@ static void compute_z_array(const char *str, int len, int *z) {
     
     z[0] = len;
     
+    // Iterate through the string to compute Z-values
+    // [left, right] is the current "Z-box" (interval matching the prefix)
     for (int i = 1; i < len; i++) {
         if (i > right) {
+            // Case 1: i is outside the current Z-box
+            // Compute new Z-box manually by comparing characters
             left = right = i;
             while (right < len && str[right] == str[right - left]) {
                 right++;
@@ -22,10 +26,15 @@ static void compute_z_array(const char *str, int len, int *z) {
             z[i] = right - left;
             right--;
         } else {
+            // Case 2: i is inside the current Z-box
+            // Use previously computed Z-values to optimize
             int k = i - left;
             if (z[k] < right - i + 1) {
+                // Case 2a: The value fits entirely within the current Z-box
                 z[i] = z[k];
             } else {
+                // Case 2b: The value touches the boundary of the Z-box
+                // Need to extend the search beyond the current Z-box
                 left = i;
                 while (right < len && str[right] == str[right - left]) {
                     right++;
@@ -60,6 +69,7 @@ MatchResult z_algorithm_search(const char *text, const char *pattern) {
     }
     
     // Create concatenated string: pattern$text
+    // This allows us to use the Z-array to find pattern occurrences in text
     int concat_len = m + n + 1;
     char *concat = (char *)malloc((concat_len + 1) * sizeof(char));
     if (!concat) {
@@ -67,12 +77,10 @@ MatchResult z_algorithm_search(const char *text, const char *pattern) {
         return result;
     }
     
-    // Build concatenated string
     strcpy(concat, pattern);
-    concat[m] = '$';  // Special separator character
+    concat[m] = '$';  // Special separator character that doesn't appear in DNA
     strcpy(concat + m + 1, text);
     
-    // Compute Z-array
     int *z = (int *)calloc(concat_len, sizeof(int));
     if (!z) {
         free(concat);
@@ -84,7 +92,6 @@ MatchResult z_algorithm_search(const char *text, const char *pattern) {
     
     result.memory_used = concat_len * sizeof(char) + concat_len * sizeof(int);
     
-    // Find matches
     int capacity = 100;
     int *matches = (int *)malloc(capacity * sizeof(int));
     if (!matches) {
@@ -96,10 +103,10 @@ MatchResult z_algorithm_search(const char *text, const char *pattern) {
     
     int count = 0;
     
-    // Check Z-array values after the pattern
+    // Check Z-array values corresponding to the text part
+    // If Z-value equals pattern length, we found a match
     for (int i = m + 1; i < concat_len; i++) {
         if (z[i] == m) {
-            // Match found at position (i - m - 1) in text
             if (count >= capacity) {
                 capacity *= 2;
                 int *temp = (int *)realloc(matches, capacity * sizeof(int));

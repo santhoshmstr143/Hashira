@@ -37,6 +37,9 @@ void compute_lps_array(const char *pattern, int m, int *lps);
 MatchResult kmp_search(const char *text, const char *pattern);
 int verify_kmp_matches(const char *text, const char *pattern, const MatchResult *result);
 
+// Naive Algorithm
+MatchResult naive_search(const char *text, const char *pattern);
+
 // Boyer-Moore Algorithm
 void compute_bad_character(const char *pattern, int m, int bad_char[]);
 void compute_good_suffix(const char *pattern, int m, int *good_suffix);

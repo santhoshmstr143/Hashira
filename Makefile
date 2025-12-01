@@ -15,6 +15,7 @@ BIN_DIR = bin
 # Source files
 SRCS = $(SRC_DIR)/main.c \
        $(ALGO_DIR)/kmp_algorithm.c \
+       $(ALGO_DIR)/naive_algorithm.c \
        $(ALGO_DIR)/boyer_moore_algorithm.c \
        $(ALGO_DIR)/suffix_tree.c \
        $(ALGO_DIR)/shift_or_algorithm.c \

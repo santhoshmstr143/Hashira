@@ -21,70 +21,70 @@ void free_approximate_match_result(ApproximateMatchResult *result) {
 }
 
 void print_match_result(const char *algo_name, const MatchResult *result) {
-    printf("\n┌─────────────────────────────────────────────────────────┐\n");
-    printf("│  🧬 %s%-*s│\n", algo_name, (int)(52 - strlen(algo_name)), "");
-    printf("└─────────────────────────────────────────────────────────┘\n");
+    printf("\n+---------------------------------------------------------+\n");
+    printf("|  [ALGO] %s%-*s|\n", algo_name, (int)(50 - strlen(algo_name)), "");
+    printf("+---------------------------------------------------------+\n");
     
     if (result->count == 0) {
-        printf("  ❌ No matches found\n");
+        printf("  [ - ] No matches found\n");
     } else if (result->count == 1) {
-        printf("  ✅ Found %d match\n", result->count);
+        printf("  [ + ] Found %d match\n", result->count);
     } else {
-        printf("  ✅ Found %d matches\n", result->count);
+        printf("  [ + ] Found %d matches\n", result->count);
     }
     
-    printf("  ⏱️  Time taken: %.3f ms\n", result->time_taken);
-    printf("  💾 Memory used: %zu bytes\n", result->memory_used);
+    printf("  [TIME] Time taken: %.3f ms\n", result->time_taken);
+    printf("  [MEM ] Memory used: %zu bytes\n", result->memory_used);
     
-    if (result->count > 0 && result->count <= 10) {
-        printf("  📍 Match positions: ");
+    if (result->count > 0 && result->count <= 100) {
+        printf("  [POS ] Match positions: ");
         for (int i = 0; i < result->count; i++) {
             printf("%d", result->positions[i]);
             if (i < result->count - 1) printf(", ");
         }
         printf("\n");
-    } else if (result->count > 10) {
-        printf("  📍 First 10 positions: ");
-        for (int i = 0; i < 10; i++) {
+    } else if (result->count > 100) {
+        printf("  [POS ] First 100 positions: ");
+        for (int i = 0; i < 100; i++) {
             printf("%d", result->positions[i]);
-            if (i < 9) printf(", ");
+            if (i < 99) printf(", ");
         }
-        printf(" ... (+%d more)\n", result->count - 10);
+        printf(" ... (+%d more)\n", result->count - 100);
     }
     printf("\n");
 }
 
 void print_approximate_match_result(const char *algo_name, const ApproximateMatchResult *result) {
-    printf("\n┌─────────────────────────────────────────────────────────┐\n");
-    printf("│  🔍 %s%-*s│\n", algo_name, (int)(52 - strlen(algo_name)), "");
-    printf("└─────────────────────────────────────────────────────────┘\n");
+    printf("\n+---------------------------------------------------------+\n");
+    printf("|  [ALGO] %s%-*s|\n", algo_name, (int)(50 - strlen(algo_name)), "");
+    printf("+---------------------------------------------------------+\n");
     
     if (result->count == 0) {
-        printf("  ❌ No approximate matches found\n");
+        printf("  [ - ] No approximate matches found\n");
     } else if (result->count == 1) {
-        printf("  ✅ Found %d approximate match\n", result->count);
+        printf("  [ + ] Found %d approximate match\n", result->count);
     } else {
-        printf("  ✅ Found %d approximate matches\n", result->count);
+        printf("  [ + ] Found %d approximate matches\n", result->count);
     }
     
-    printf("  ⏱️  Time taken: %.3f ms\n", result->time_taken);
-    printf("  💾 Memory used: %zu bytes\n", result->memory_used);
+    printf("  [TIME] Time taken: %.3f ms\n", result->time_taken);
+    printf("  [MEM ] Memory used: %zu bytes\n", result->memory_used);
     
-    if (result->count > 0 && result->count <= 10) {
-        printf("\n  📊 Match details:\n");
+    if (result->count > 0 && result->count <= 100) {
+        printf("\n  [INFO] Match details:\n");
         for (int i = 0; i < result->count; i++) {
-            printf("     Position %d → Edit distance: %d\n", 
+            printf("     Position %d -> Edit distance: %d\n", 
                    result->matches[i].position, 
                    result->matches[i].distance);
         }
-    } else if (result->count > 10) {
-        printf("\n  📊 First 10 match details:\n");
-        for (int i = 0; i < 10; i++) {
-            printf("     Position %d → Edit distance: %d\n", 
+    } else if (result->count > 100) {
+        printf("\n  [INFO] First 100 match details:\n");
+        for (int i = 0; i < 100; i++) {
+            printf("     Position %d -> Edit distance: %d\n", 
                    result->matches[i].position, 
                    result->matches[i].distance);
         }
-        printf("     ... and %d more matches\n", result->count - 10);
+        printf("     ... and %d more matches\n", result->count - 100);
     }
     printf("\n");
 }
@@ -98,32 +98,32 @@ void free_multi_pattern_result(MultiPatternResult *result) {
 }
 
 void print_multi_pattern_result(const char *algo_name, const MultiPatternResult *result, const char **patterns) {
-    printf("\n┌─────────────────────────────────────────────────────────┐\n");
-    printf("│  🎯 %s%-*s│\n", algo_name, (int)(52 - strlen(algo_name)), "");
-    printf("└─────────────────────────────────────────────────────────┘\n");
+    printf("\n+---------------------------------------------------------+\n");
+    printf("|  [ALGO] %s%-*s|\n", algo_name, (int)(50 - strlen(algo_name)), "");
+    printf("+---------------------------------------------------------+\n");
     
     if (result->match_count == 0) {
-        printf("  ❌ No pattern matches found\n");
+        printf("  [ - ] No pattern matches found\n");
     } else if (result->match_count == 1) {
-        printf("  ✅ Found %d match\n", result->match_count);
+        printf("  [ + ] Found %d match\n", result->match_count);
     } else {
-        printf("  ✅ Found %d matches\n", result->match_count);
+        printf("  [ + ] Found %d matches\n", result->match_count);
     }
     
-    printf("  ⏱️  Time taken: %.3f ms\n", result->time_taken);
-    printf("  💾 Memory used: %zu bytes\n", result->memory_used);
+    printf("  [TIME] Time taken: %.3f ms\n", result->time_taken);
+    printf("  [MEM ] Memory used: %zu bytes\n", result->memory_used);
     
     if (result->match_count > 0) {
-        printf("\n  📊 Match details:\n");
-        int display_count = result->match_count > 20 ? 20 : result->match_count;
+        printf("\n  [INFO] Match details:\n");
+        int display_count = result->match_count > 100 ? 100 : result->match_count;
         for (int i = 0; i < display_count; i++) {
-            printf("     Pattern[%d] '%s' → Position %d\n", 
+            printf("     Pattern[%d] '%s' -> Position %d\n", 
                    result->matches[i].pattern_id,
                    patterns[result->matches[i].pattern_id],
                    result->matches[i].position);
         }
-        if (result->match_count > 20) {
-            printf("     ... and %d more matches\n", result->match_count - 20);
+        if (result->match_count > 100) {
+            printf("     ... and %d more matches\n", result->match_count - 100);
         }
     }
     printf("\n");
@@ -164,16 +164,26 @@ void print_sequence_with_highlights(const char *sequence, const int *positions, 
     }
 
     /* For long sequences show each match with context */
-    for (int i = 0; i < count; i++) {
+    /* User requested to disable printing all sequences/contexts for large inputs */
+    /* Only printing positions in print_match_result is sufficient */
+    /* 
+    int display_limit = 100;
+    if (count < display_limit) display_limit = count;
+    
+    for (int i = 0; i < display_limit; i++) {
         int p = positions[i];
         if (p < 0 || p + pattern_len > seq_len) continue;
         int start = p - context; if (start < 0) start = 0;
         int end = p + pattern_len + context; if (end > seq_len) end = seq_len;
         printf("...%d: ", p);
         for (int j = start; j < p; j++) putchar(sequence[j]);
-        /* highlight match */
+        // highlight match
         for (int j = p; j < p + pattern_len; j++) printf("\x1b[42m%c\x1b[0m", sequence[j]);
         for (int j = p + pattern_len; j < end; j++) putchar(sequence[j]);
         printf("...\n");
     }
+    if (count > display_limit) {
+        printf("... (showing first %d of %d matches) ...\n", display_limit, count);
+    }
+    */
 }

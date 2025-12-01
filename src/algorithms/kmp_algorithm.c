@@ -7,11 +7,9 @@
 #include "pattern_matching.h"
 
 /**
- * Computes the Longest Prefix Suffix (LPS) array for KMP algorithm.
- * 
- * @param pattern The pattern string to analyze.
- * @param m The length of the pattern.
- * @param lps Array to store the computed LPS values (must be size m).
+ * Computes the Longest Prefix Suffix (LPS) array.
+ * lps[i] stores the length of the longest proper prefix of pattern[0..i]
+ * that is also a suffix of pattern[0..i].
  */
 void compute_lps_array(const char *pattern, int m, int *lps) {
     int len = 0;
@@ -25,6 +23,7 @@ void compute_lps_array(const char *pattern, int m, int *lps) {
             i++;
         } else {
             if (len != 0) {
+                // Fall back to the previous longest prefix length
                 len = lps[len - 1];
             } else {
                 lps[i] = 0;
@@ -36,10 +35,7 @@ void compute_lps_array(const char *pattern, int m, int *lps) {
 
 /**
  * Performs KMP pattern matching on the given text.
- * 
- * @param text The DNA sequence to search in.
- * @param pattern The pattern to search for.
- * @return MatchResult structure containing positions, count, time, and memory usage.
+ * Uses the LPS array to skip unnecessary comparisons.
  */
 MatchResult kmp_search(const char *text, const char *pattern) {
     MatchResult result;
@@ -63,7 +59,6 @@ MatchResult kmp_search(const char *text, const char *pattern) {
         return result;
     }
     
-    // Allocate memory for LPS array
     int *lps = (int *)malloc(m * sizeof(int));
     if (!lps) {
         fprintf(stderr, "Memory allocation failed for LPS array\n");
@@ -72,10 +67,8 @@ MatchResult kmp_search(const char *text, const char *pattern) {
     
     result.memory_used += m * sizeof(int);
     
-    // Compute LPS array
     compute_lps_array(pattern, m, lps);
     
-    // Allocate initial space for matches
     int capacity = 100;
     int *matches = (int *)malloc(capacity * sizeof(int));
     if (!matches) {
@@ -87,8 +80,8 @@ MatchResult kmp_search(const char *text, const char *pattern) {
     result.memory_used += capacity * sizeof(int);
     
     int count = 0;
-    int i = 0; // index for text
-    int j = 0; // index for pattern
+    int i = 0; 
+    int j = 0; 
     
     while (i < n) {
         if (pattern[j] == text[i]) {
@@ -97,7 +90,6 @@ MatchResult kmp_search(const char *text, const char *pattern) {
         }
         
         if (j == m) {
-            // Pattern found - resize if needed
             if (count >= capacity) {
                 capacity *= 2;
                 int *temp = (int *)realloc(matches, capacity * sizeof(int));
@@ -111,9 +103,11 @@ MatchResult kmp_search(const char *text, const char *pattern) {
                 result.memory_used += capacity * sizeof(int) / 2;
             }
             matches[count++] = i - j;
+            // Use LPS to shift pattern without re-scanning matched characters
             j = lps[j - 1];
         } else if (i < n && pattern[j] != text[i]) {
             if (j != 0) {
+                // Mismatch after some matches: use LPS to skip
                 j = lps[j - 1];
             } else {
                 i++;

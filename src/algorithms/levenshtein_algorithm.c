@@ -14,7 +14,7 @@ int levenshtein_distance(const char *s1, int len1, const char *s2, int len2) {
     if (len1 == 0) return len2;
     if (len2 == 0) return len1;
     
-    // Allocate two rows for space-optimized DP
+    // Use two rows for space-optimized DP (O(min(m,n)) space) instead of full matrix O(mn)
     int *prev_row = (int *)malloc((len2 + 1) * sizeof(int));
     int *curr_row = (int *)malloc((len2 + 1) * sizeof(int));
     
@@ -31,7 +31,7 @@ int levenshtein_distance(const char *s1, int len1, const char *s2, int len2) {
             // Cost: 0 if characters match, 1 if they don't
             int cost = (s1[i-1] == s2[j-1]) ? 0 : 1;
             
-            // Take minimum of three operations
+            // Recurrence relation: min(deletion, insertion, substitution)
             curr_row[j] = MIN(
                 prev_row[j] + 1,      // deletion: remove from s1
                 curr_row[j-1] + 1,    // insertion: add to s1
@@ -90,17 +90,17 @@ ApproximateMatchResult levenshtein_search(const char *text, const char *pattern,
     int count = 0;
     
     // Scan through each position in text
-    // Check substrings of varying lengths to account for insertions/deletions
+    // We check substrings of varying lengths because insertions/deletions change the match length
     for (int i = 0; i < n; i++) {
-        // Calculate substring length range
-        // Min: pattern length minus allowed deletions
-        // Max: pattern length plus allowed insertions
+        // Calculate substring length range to check
+        // Min length: pattern length - max deletions allowed
+        // Max length: pattern length + max insertions allowed
         int min_len = m - max_distance;
         if (min_len < 1) min_len = 1;
         int max_len = m + max_distance;
         if (i + max_len > n) max_len = n - i;
         
-        // Find best match distance at this position
+        // Find best match distance starting at this position
         int best_distance = max_distance + 1;
         
         for (int len = min_len; len <= max_len && i + len <= n; len++) {
@@ -111,9 +111,8 @@ ApproximateMatchResult levenshtein_search(const char *text, const char *pattern,
             }
         }
         
-        // If match is within tolerance, save it
+        // If best match is within tolerance, record it
         if (best_distance <= max_distance) {
-            // Expand array if needed
             if (count >= capacity) {
                 capacity *= 2;
                 ApproximateMatch *temp = (ApproximateMatch *)realloc(matches, 

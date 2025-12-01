@@ -28,6 +28,9 @@ static int int_cmp(const void *a, const void *b) {
  * suffix_tree_search, free_suffix_tree) is kept so main.c and other files
  * don't need to change. Internally we build a sorted array of suffix
  * starting indices and use binary search to find occurrences.
+ * 
+ * Note: While named "Suffix Tree" in the API for compatibility, this is 
+ * technically a Suffix Array implementation which is more memory efficient.
  */
 
 SuffixTree* create_suffix_tree(const char *text) {
@@ -85,7 +88,7 @@ MatchResult suffix_tree_search(SuffixTree *tree, const char *pattern) {
         return result;
     }
 
-    /* find leftmost match */
+    /* Binary search to find the leftmost occurrence of the pattern in the sorted suffixes */
     int left = 0, right = n - 1, first = -1;
     while (left <= right) {
         int mid = (left + right) / 2;
@@ -107,6 +110,8 @@ MatchResult suffix_tree_search(SuffixTree *tree, const char *pattern) {
     int capacity = 100;
     int *matches = (int *)malloc(capacity * sizeof(int));
     int count = 0;
+    
+    // Collect all contiguous matches in the suffix array starting from 'first'
     for (int i = first; i < n; i++) {
         if (strncmp(text + sa[i], pattern, m) == 0) {
             if (count >= capacity) {

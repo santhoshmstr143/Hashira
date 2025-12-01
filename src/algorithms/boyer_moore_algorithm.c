@@ -15,18 +15,15 @@
 
 /**
  * Preprocesses the pattern to create the Bad Character Heuristic array.
- * 
- * @param pattern The pattern string.
- * @param m Length of the pattern.
- * @param bad_char Array to store the last occurrence index of each character.
+ * Stores the index of the last occurrence of each character in the pattern.
+ * This allows shifting the pattern to align the mismatching character in text
+ * with its last occurrence in the pattern.
  */
 void compute_bad_character(const char *pattern, int m, int bad_char[]) {
-    // Initialize all occurrences as -1
     for (int i = 0; i < ALPHABET_SIZE; i++) {
         bad_char[i] = -1;
     }
     
-    // Fill the actual value of last occurrence of each character
     for (int i = 0; i < m; i++) {
         bad_char[(unsigned char)pattern[i]] = i;
     }
@@ -34,29 +31,26 @@ void compute_bad_character(const char *pattern, int m, int bad_char[]) {
 
 /**
  * Preprocesses the pattern to create the Good Suffix Heuristic array.
- * 
- * @param pattern The pattern string.
- * @param m Length of the pattern.
- * @param good_suffix Array to store the shift distance for each suffix.
+ * good_suffix[i] stores the shift distance when a mismatch occurs at index i-1.
+ * It tries to align the matched suffix with another occurrence of the same suffix
+ * in the pattern, or with a prefix of the pattern.
  */
 void compute_good_suffix(const char *pattern, int m, int *good_suffix) {
     int *border = (int *)malloc((m + 1) * sizeof(int));
     
     if (!border) {
         fprintf(stderr, "Memory allocation failed for border array\n");
-        // Initialize with safe default values
         for (int i = 0; i < m; i++) {
             good_suffix[i] = m;
         }
         return;
     }
     
-    // Initialize good_suffix array
     for (int i = 0; i < m; i++) {
         good_suffix[i] = m;
     }
     
-    // Preprocessing for case 2
+    // Case 2: Suffix occurs elsewhere in pattern
     int i = m;
     int j = m + 1;
     border[i] = j;
@@ -73,7 +67,7 @@ void compute_good_suffix(const char *pattern, int m, int *good_suffix) {
         border[i] = j;
     }
     
-    // Preprocessing for case 1
+    // Case 1: A prefix of the pattern matches a suffix of the pattern
     j = border[0];
     for (i = 0; i < m; i++) {
         if (good_suffix[i] == m) {
@@ -89,10 +83,6 @@ void compute_good_suffix(const char *pattern, int m, int *good_suffix) {
 
 /**
  * Validates if the string contains only DNA characters (A, C, G, T).
- * 
- * @param str The string to validate.
- * @param len Length of the string.
- * @return 1 if valid DNA sequence, 0 otherwise.
  */
 int is_valid_dna(const char *str, int len) {
     for (int i = 0; i < len; i++) {
@@ -107,10 +97,6 @@ int is_valid_dna(const char *str, int len) {
 
 /**
  * Performs Boyer-Moore pattern matching using both Bad Character and Good Suffix heuristics.
- * 
- * @param text The DNA sequence to search in.
- * @param pattern The pattern to search for.
- * @return MatchResult structure containing positions, count, time, and memory usage.
  */
 MatchResult boyer_moore_search(const char *text, const char *pattern) {
     MatchResult result;
@@ -143,19 +129,6 @@ MatchResult boyer_moore_search(const char *text, const char *pattern) {
         result.time_taken = ((double)(end - start)) / CLOCKS_PER_SEC * 1000.0;
         return result;
     }
-    
-    // Optional: Validate DNA sequences (uncomment if needed)
-    /*
-    if (!is_valid_dna(text, n)) {
-        fprintf(stderr, "Error: Invalid DNA character in text\n");
-        return result;
-    }
-    
-    if (!is_valid_dna(pattern, m)) {
-        fprintf(stderr, "Error: Invalid DNA character in pattern\n");
-        return result;
-    }
-    */
     
     // Preprocessing - Bad Character Heuristic
     int bad_char[ALPHABET_SIZE];
@@ -198,19 +171,17 @@ MatchResult boyer_moore_search(const char *text, const char *pattern) {
     int count = 0;
     int shift = 0;
     
-    // Main search loop
+    // Slide the pattern over text
     while (shift <= n - m) {
         int j = m - 1;
         
-        // Match pattern from right to left
+        // Scan from right to left
         while (j >= 0 && pattern[j] == text[shift + j]) {
             j--;
         }
         
         if (j < 0) {
-            // Pattern found at position shift
-            
-            // Resize array if needed
+            // Pattern found at current shift
             if (count >= capacity) {
                 int old_capacity = capacity;
                 capacity *= 2;
@@ -226,17 +197,20 @@ MatchResult boyer_moore_search(const char *text, const char *pattern) {
                     return result;
                 }
                 matches = temp;
-                // Only add the NEW memory allocated
                 result.memory_used += (capacity - old_capacity) * sizeof(int);
             }
             
             matches[count++] = shift;
             
-            // Shift by 1 to find overlapping occurrences
-            // This ensures we don't miss any matches
-            shift += 1;
+            // Shift pattern so that the next character in text aligns with the last occurrence in pattern
+            // If not present, shift by pattern length + 1 (handled by bad_char logic implicitly or just shift 1)
+            // For finding all occurrences, we can safely shift by 1 or use good suffix rule for full match
+            shift += (shift + m < n) ? m - bad_char[(unsigned char)text[shift + m]] : 1;
         } else {
-            // Mismatch - use both heuristics and take maximum shift
+            // Mismatch occurred at index j
+            // We take the maximum of two shifts:
+            // 1. Bad Character Rule: Align text[shift+j] with its last occurrence in pattern
+            // 2. Good Suffix Rule: Align the matched suffix with its recurrence in pattern
             int bad_char_shift = j - bad_char[(unsigned char)text[shift + j]];
             int good_suffix_shift = good_suffix[j];
             shift += MAX(bad_char_shift, good_suffix_shift);

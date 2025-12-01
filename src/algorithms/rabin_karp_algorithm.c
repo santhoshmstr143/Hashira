@@ -42,17 +42,17 @@ MatchResult rabin_karp_search(const char *text, const char *pattern) {
     
     result.memory_used = capacity * sizeof(int);
     
-    // Calculate hash values
     unsigned long long pattern_hash = 0;
     unsigned long long text_hash = 0;
     unsigned long long h = 1;
     
     // Calculate h = BASE^(m-1) % PRIME
+    // This is the multiplier for the most significant digit in the rolling hash
     for (int i = 0; i < m - 1; i++) {
         h = (h * BASE) % PRIME;
     }
     
-    // Calculate initial hash values
+    // Calculate initial hash values for pattern and first window of text
     for (int i = 0; i < m; i++) {
         pattern_hash = (BASE * pattern_hash + (unsigned char)pattern[i]) % PRIME;
         text_hash = (BASE * text_hash + (unsigned char)text[i]) % PRIME;
@@ -60,11 +60,10 @@ MatchResult rabin_karp_search(const char *text, const char *pattern) {
     
     int count = 0;
     
-    // Slide pattern over text
+    // Slide pattern over text one by one
     for (int i = 0; i <= n - m; i++) {
-        // Check if hash values match
+        // If hash values match, check characters one by one to avoid collisions
         if (pattern_hash == text_hash) {
-            // Verify character by character
             int match = 1;
             for (int j = 0; j < m; j++) {
                 if (text[i + j] != pattern[j]) {
@@ -74,7 +73,6 @@ MatchResult rabin_karp_search(const char *text, const char *pattern) {
             }
             
             if (match) {
-                // Pattern found - resize if needed
                 if (count >= capacity) {
                     capacity *= 2;
                     int *temp = (int *)realloc(matches, capacity * sizeof(int));
@@ -92,7 +90,8 @@ MatchResult rabin_karp_search(const char *text, const char *pattern) {
         
         // Calculate rolling hash for next window
         if (i < n - m) {
-            // Remove leading character and add trailing character
+            // Remove leading character: subtract (text[i] * h)
+            // Add trailing character: add text[i+m]
             unsigned long long old_char = ((unsigned char)text[i] * h) % PRIME;
             text_hash = (text_hash + PRIME - old_char) % PRIME;
             text_hash = (text_hash * BASE) % PRIME;

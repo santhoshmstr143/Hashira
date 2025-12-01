@@ -8,13 +8,19 @@
 #include <regex.h>
 
 void print_algorithm_info(int choice) {
-    printf("\n📘 \033[1;34mAlgorithm Explanation:\033[0m\n");
+    printf("\n[INFO] \033[1;34mAlgorithm Explanation:\033[0m\n");
     switch(choice) {
         case 3: // KMP
             printf("   \033[1mKnuth-Morris-Pratt (KMP)\033[0m is an efficient exact matching algorithm.\n");
             printf("   It preprocesses the pattern to create a 'Longest Prefix Suffix' (LPS) array.\n");
             printf("   This allows it to skip unnecessary comparisons when a mismatch occurs, ensuring\n");
             printf("   we never go backwards in the text. Time Complexity: O(n+m).\n");
+            break;
+        case 15: // Naive
+            printf("   \033[1mNaive (Brute Force)\033[0m is the simplest pattern matching algorithm.\n");
+            printf("   It checks for the pattern at every possible position in the text.\n");
+            printf("   Useful for verifying the correctness of more complex algorithms.\n");
+            printf("   Time Complexity: O(nm).\n");
             break;
         case 4: // Boyer-Moore
             printf("   \033[1mBoyer-Moore\033[0m is often the fastest algorithm for standard text.\n");
@@ -59,11 +65,12 @@ void print_algorithm_info(int choice) {
 }
 
 void print_menu() {
-    printf("\n╔════════════════════════════════════════════════════════╗\n");
-    printf("║   DNA Pattern Matching Algorithm Suite (8 Algorithms)  ║\n");
-    printf("╚════════════════════════════════════════════════════════╝\n");
+    printf("\n+========================================================+\n");
+    printf("|   DNA Pattern Matching Algorithm Suite (8 Algorithms)  |\n");
+    printf("+========================================================+\n");
     printf("\n=== Exact Matching Algorithms ===\n");
     printf("3. Run KMP Algorithm\n");
+    printf("15. Run Naive (Brute Force) Algorithm\n");
     printf("4. Run Boyer-Moore Algorithm\n");
     printf("5. Run Suffix Tree Algorithm\n");
     printf("6. Run Shift-Or Algorithm\n");
@@ -136,13 +143,17 @@ MatchResult regex_search(const char *text, const char *pattern) {
 }
 
 void compare_all_algorithms(const char *text, const char *pattern) {
-    printf("\n╔════════════════════════════════════════════════════════════════════╗\n");
-    printf("║        🏆 Comparing All Exact Matching Algorithms        ║\n");
-    printf("╚════════════════════════════════════════════════════════════════════╝\n");
-    printf("\n  📏 Text length: %zu\n", strlen(text));
-    printf("  📐 Pattern length: %zu\n", strlen(pattern));
-    printf("  🔍 Pattern: %s\n", pattern);
+    printf("\n+====================================================================+\n");
+    printf("|        [COMP] Comparing All Exact Matching Algorithms        |\n");
+    printf("+====================================================================+\n");
+    printf("\n  [LEN ] Text length: %zu\n", strlen(text));
+    printf("  [LEN ] Pattern length: %zu\n", strlen(pattern));
+    printf("  [PATT] Pattern: %s\n", pattern);
     
+    // Naive
+    MatchResult naive_result = naive_search(text, pattern);
+    print_match_result("Naive Algorithm", &naive_result);
+
     // KMP
     MatchResult kmp_result = kmp_search(text, pattern);
     print_match_result("KMP Algorithm", &kmp_result);
@@ -152,7 +163,7 @@ void compare_all_algorithms(const char *text, const char *pattern) {
     print_match_result("Boyer-Moore Algorithm", &bm_result);
     
     // Suffix Tree
-    printf("\n🌳 Building Suffix Tree...\n");
+    printf("\n[TREE] Building Suffix Tree...\n");
     clock_t st_start = clock();
     SuffixTree *tree = create_suffix_tree(text);
     clock_t st_end = clock();
@@ -174,7 +185,7 @@ void compare_all_algorithms(const char *text, const char *pattern) {
         so_result = shift_or_search(text, pattern);
         print_match_result("Shift-Or Algorithm", &so_result);
     } else {
-        printf("\n⚠️  Shift-Or: Pattern too long (max 64 characters)\n");
+        printf("\n[WARN]  Shift-Or: Pattern too long (max 64 characters)\n");
     }
     
     // Rabin-Karp
@@ -186,25 +197,28 @@ void compare_all_algorithms(const char *text, const char *pattern) {
     print_match_result("Z-Algorithm", &z_result);
     
     // Verify correctness
-    printf("\n┌──────────────────────────────────┐\n");
-    printf("│  ✅ Correctness Verification  │\n");
-    printf("└──────────────────────────────────┘\n");
-    printf("  KMP matches verified: %s\n", 
-           verify_kmp_matches(text, pattern, &kmp_result) ? "✅ YES" : "❌ NO");
+    printf("\n+----------------------------------+\n");
+    printf("|  [ OK ] Correctness Verification |\n");
+    printf("+----------------------------------+\n");
+    printf("  Naive matches verified: %s\n", 
+           (naive_result.count == kmp_result.count) ? "[ OK ] YES" : "[FAIL] NO");
     
-    int all_match = (kmp_result.count == bm_result.count && 
+    int all_match = (naive_result.count == kmp_result.count &&
+                     kmp_result.count == bm_result.count && 
                      bm_result.count == st_result.count &&
                      st_result.count == so_result.count &&
                      so_result.count == rk_result.count &&
                      rk_result.count == z_result.count);
-    printf("  All algorithms agree: %s\n", all_match ? "✅ YES" : "⚠️  NO");
+    printf("  All algorithms agree: %s\n", all_match ? "[ OK ] YES" : "[WARN]  NO");
     
     // Summary comparison
-    printf("\n┌──────────────────────────────────────────────────────────────────────┐\n");
-    printf("│        📊 Performance Summary (All Algorithms)          │\n");
-    printf("└──────────────────────────────────────────────────────────────────────┘\n\n");
+    printf("\n+----------------------------------------------------------------------+\n");
+    printf("|        [STAT] Performance Summary (All Algorithms)          |\n");
+    printf("+----------------------------------------------------------------------+\n\n");
     printf("  %-20s | %10s | %15s | %15s\n", "Algorithm", "Matches", "Time (ms)", "Memory (bytes)");
-    printf("  ───────────────────────────────────────────────────────────────\n");
+    printf("  ---------------------------------------------------------------\n");
+    printf("  %-20s | %10d | %15.3f | %15zu\n", "Naive", naive_result.count, 
+           naive_result.time_taken, naive_result.memory_used);
     printf("  %-20s | %10d | %15.3f | %15zu\n", "KMP", kmp_result.count, 
            kmp_result.time_taken, kmp_result.memory_used);
     printf("  %-20s | %10d | %15.3f | %15zu\n", "Boyer-Moore", bm_result.count,
@@ -219,8 +233,13 @@ void compare_all_algorithms(const char *text, const char *pattern) {
            z_result.time_taken, z_result.memory_used);
     
     // Find fastest
-    double min_time = kmp_result.time_taken;
-    const char *fastest = "KMP";
+    double min_time = naive_result.time_taken;
+    const char *fastest = "Naive";
+
+    if (kmp_result.time_taken < min_time) {
+        min_time = kmp_result.time_taken;
+        fastest = "KMP";
+    }
     
     if (bm_result.time_taken < min_time) {
         min_time = bm_result.time_taken;
@@ -243,9 +262,10 @@ void compare_all_algorithms(const char *text, const char *pattern) {
         fastest = "Z-Algorithm";
     }
     
-    printf("\n  🏆 Fastest algorithm: %s (%.3f ms)\n", fastest, min_time);
+    printf("\n  [BEST] Fastest algorithm: %s (%.3f ms)\n", fastest, min_time);
     
     // Cleanup
+    free_match_result(&naive_result);
     free_match_result(&kmp_result);
     free_match_result(&bm_result);
     free_match_result(&st_result);
@@ -255,9 +275,9 @@ void compare_all_algorithms(const char *text, const char *pattern) {
 }
 
 void run_comprehensive_tests() {
-    printf("\n╔════════════════════════════════════════════════════════╗\n");
-    printf("║           Comprehensive Test Suite                     ║\n");
-    printf("╚════════════════════════════════════════════════════════╝\n");
+    printf("\n+========================================================+\n");
+    printf("|           Comprehensive Test Suite                     |\n");
+    printf("+========================================================+\n");
     
     // Test 1: Simple pattern
     printf("\n--- Test 1: Simple Pattern ---\n");
@@ -312,6 +332,7 @@ void run_benchmark_mode(int algo_id, const char *filename, const char *pattern) 
 
     switch(algo_id) {
         case 3: result = kmp_search(seq->sequence, pattern); break;
+        case 15: result = naive_search(seq->sequence, pattern); break;
         case 4: result = boyer_moore_search(seq->sequence, pattern); break;
         case 5: {
              // Suffix tree usually requires building, we'll just time the search + build if possible
@@ -430,6 +451,24 @@ int main(int argc, char *argv[]) {
                            "All matches correct" : "Error in matches");
                 }
                 
+                free_match_result(&result);
+                break;
+            }
+
+            case 15: {
+                if (!sequence) {
+                    printf("Please load a sequence first!\n");
+                    break;
+                }
+                
+                print_algorithm_info(15);
+                printf("Enter pattern to search: ");
+                if (scanf("%255s", pattern) != 1) pattern[0] = '\0';
+                getchar();
+                
+                MatchResult result = naive_search(sequence->sequence, pattern);
+                print_match_result("Naive Algorithm", &result);
+                print_sequence_with_highlights(sequence->sequence, result.positions, result.count, strlen(pattern), 30);
                 free_match_result(&result);
                 break;
             }
@@ -579,9 +618,9 @@ int main(int argc, char *argv[]) {
 
                             if (kmp.time_taken > 0.0 && py_time > 0.0) {
                                 if (kmp.time_taken < py_time) {
-                                    printf("\n✓ KMP is %.2fx faster than Python regex\n", py_time / kmp.time_taken);
+                                    printf("\n[+] KMP is %.2fx faster than Python regex\n", py_time / kmp.time_taken);
                                 } else {
-                                    printf("\n✓ Python regex is %.2fx faster than KMP\n", kmp.time_taken / py_time);
+                                    printf("\n[+] Python regex is %.2fx faster than KMP\n", kmp.time_taken / py_time);
                                 }
                             }
                         } else {
