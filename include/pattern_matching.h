@@ -82,7 +82,6 @@ void print_sequence_with_highlights(const char *sequence, const int *positions, 
 
 // Shift-Or (Bitap) Algorithm
 MatchResult shift_or_search(const char *text, const char *pattern);
-ApproximateMatchResult shift_or_approximate_search(const char *text, const char *pattern, int max_errors);
 
 // Levenshtein Distance Search
 int levenshtein_distance(const char *s1, int len1, const char *s2, int len2);

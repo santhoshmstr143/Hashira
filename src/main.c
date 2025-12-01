@@ -49,11 +49,6 @@ void print_algorithm_info(int choice) {
             printf("   It allows for errors (insertions, deletions, substitutions). We search for substrings\n");
             printf("   in the text that are within a specific 'edit distance' from your pattern.\n");
             break;
-        case 14: // Shift-Or Approx
-            printf("   \033[1mShift-Or Approximate (Wu-Manber)\033[0m is a bit-parallel algorithm for fuzzy matching.\n");
-            printf("   It extends the exact Shift-Or algorithm to track multiple error states simultaneously\n");
-            printf("   using bitwise logic. Very fast for short patterns with small error counts.\n");
-            break;
         case 13: // Aho-Corasick
             printf("   \033[1mAho-Corasick\033[0m is designed for finding *multiple* patterns at once.\n");
             printf("   It builds a finite automaton (Trie) of all patterns with 'failure links'.\n");
@@ -76,7 +71,6 @@ void print_menu() {
     printf("12. Run Z-Algorithm\n");
     printf("\n=== Approximate/Multi-Pattern Matching ===\n");
     printf("7. Run Levenshtein Distance Search (Approximate)\n");
-    printf("14. Run Shift-Or Approximate Search (Wu-Manber)\n");
     printf("13. Run Aho-Corasick (Multiple Pattern Matching)\n");
     printf("\n=== Benchmarking & Testing ===\n");
     printf("8. Compare all algorithms (Exact Match)\n");
@@ -526,29 +520,6 @@ int main(int argc, char *argv[]) {
                 break;
             }
 
-            case 14: {
-                if (!sequence) {
-                    printf("Please load a sequence first!\n");
-                    break;
-                }
-                
-                print_algorithm_info(14);
-                printf("Enter pattern to search (max 63 chars): ");
-                if (scanf("%255s", pattern) != 1) pattern[0] = '\0';
-                getchar();
-                
-                int max_dist;
-                printf("Enter maximum edit distance: ");
-                if (scanf("%d", &max_dist) != 1) max_dist = 1;
-                getchar();
-                
-                ApproximateMatchResult result = shift_or_approximate_search(
-                    sequence->sequence, pattern, max_dist);
-                print_approximate_match_result("Shift-Or Approximate (Wu-Manber)", &result);
-                free_approximate_match_result(&result);
-                break;
-            }
-            
             case 8: {
                 if (!sequence) {
                     printf("Please load a sequence first!\n");
