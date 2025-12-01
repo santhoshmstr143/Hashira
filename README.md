@@ -26,7 +26,6 @@ pip install matplotlib
 **Step 2** - Compile and create sample data:
 ```bash
 make
-make sample
 ```
 **[Success]** You see "Build successful!" and "Sample FASTA file created"
 
@@ -127,14 +126,57 @@ xdg-open bench/benchmark_results.png
 
 ## Prerequisites
 
-- **C Compiler**: `gcc`
-- **Build Tool**: `make`
-- **Python 3** with `matplotlib` (for benchmarking)
+### Required Software
 
-Install on Ubuntu/Debian:
+**System Requirements:**
+- **Operating System**: Linux (Ubuntu 22.04 or similar)
+- **C Compiler**: GCC 11.4 or higher
+- **Build Tool**: GNU Make 4.3 or higher
+- **Python**: Python 3.10 or higher
+
+**Python Libraries:**
+- `matplotlib` >= 3.5.0 (for visualization)
+- `numpy` >= 1.21.0 (for numerical computations)
+- `pandas` >= 1.3.0 (for data analysis)
+
+### Installation Instructions
+
+**Ubuntu/Debian:**
 ```bash
+# Install system dependencies
+sudo apt update
+sudo apt install build-essential python3 python3-pip python3-venv
+
+# Create virtual environment (recommended)
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Install Python packages
+pip install matplotlib numpy pandas
+```
+
+**Verify Installation:**
+```bash
+# Check GCC version
+gcc --version    # Should show 11.x or higher
+
+# Check Python version
+python3 --version    # Should show 3.10 or higher
+
+# Check Make version
+make --version    # Should show 4.3 or higher
+
+# Verify Python packages
+pip list | grep -E "(matplotlib|numpy|pandas)"
+```
+
+### Quick Setup (All-in-One)
+```bash
+cd /path/to/Hashira
 sudo apt install build-essential python3 python3-pip
-pip install matplotlib
+pip install matplotlib numpy pandas
+make
+make sample
 ```
 
 ---
